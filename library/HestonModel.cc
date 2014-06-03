@@ -54,3 +54,10 @@ double* HestonModel::stockPathFactory(){
 	return stock_path;
 		
 }
+
+double HestonModel::get_ST(){
+	double* stock_path = stockPathFactory();
+	double ret = stock_path[dim_-1];
+	delete[] stock_path;
+	return ret;
+}

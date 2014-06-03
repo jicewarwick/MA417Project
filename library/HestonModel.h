@@ -7,6 +7,8 @@ class HestonModel {
 public:
 	HestonModel(double alpha, double beta, double gamma, double rho, double v0, double r, double S0, double T, int N_int, NormalRandomNumberGenerator* norm_gen);
 	double* stockPathFactory();
+	int get_dim(){return dim_;}
+	double get_ST();
 
 	virtual ~HestonModel (){}
 

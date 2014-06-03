@@ -9,12 +9,16 @@
 #include "NormalRandomNumberGenerator.h"
 #include "HestonModel.h"
 #include "dataExport.h"
+#include "Options.h"
+
+double EuropeanCallWithK(HestonModel& model, double K);
 
 int main(int argc, char *argv[]) {
 	//Simulate Heston Model
 	
 	//parameter initilisation:
 	int N_int = 1000;
+	int N_sim = 100;
 	double S0 = 10;
 	double r = 0;
 	double v0 = 0.04;
@@ -27,15 +31,12 @@ int main(int argc, char *argv[]) {
 
 	NormalRandomNumberGenerator* norm = new NormalRandomNumberGenerator();
 	HestonModel Q1(alpha, beta, gamma, rho, v0, r, S0, T, N_int, norm);
-	double* stock_path = Q1.stockPathFactory();
-
-	int N = 10;
-	double** sim10 = new double*[N];
-	for (int i = 0; i < N; ++i) {
-		sim10[i] = Q1.stockPathFactory();
-	}
-	matrix_to_file(sim10, 10, dim, "10m.csv");
 	
-	delete[] stock_path;
 	return 0;
+}
+
+double EuropeanCallWithK(HestonModel& model, double K){
+	double ST = model.get_ST();
+	return (EuropeanCallVal(ST, K));
+
 }
