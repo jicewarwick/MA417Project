@@ -1,14 +1,18 @@
 #ifndef HESTONMODEL_H_O6NC2V3Y
 #define HESTONMODEL_H_O6NC2V3Y
 
+#include "Model.h"
 #include "NormalRandomNumberGenerator.h"
 
-class HestonModel {
+class HestonModel : public Model{
 public:
 	HestonModel(double alpha, double beta, double gamma, double rho, double v0, double r, double S0, double T, int N_int, NormalRandomNumberGenerator* norm_gen);
-	double* stockPathFactory();
+	virtual double* PathFactory();
 	int get_dim(){return dim_;}
 	double get_ST();
+	double get_min();
+	double get_max();
+	double get_path_mean();
 
 	virtual ~HestonModel (){}
 

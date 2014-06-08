@@ -3,7 +3,7 @@
 #include <cmath>
 #include <algorithm>
 
-HestonModel::HestonModel(double alpha, double beta, double gamma, double rho, double v0, double r, double S0, double T, int N_int, NormalRandomNumberGenerator* norm_gen){
+HestonModel::HestonModel(double alpha, double beta, double gamma, double rho, double v0, double r, double S0, double T, int N_int, NormalRandomNumberGenerator* norm_gen) : Model(){
 	alpha_	= alpha;
 	beta_	= beta;
 	gamma_ 	= gamma;
@@ -30,7 +30,7 @@ double* HestonModel::volativityPathFactory(double*& db1){
 	return volativity_path;
 }
 
-double* HestonModel::stockPathFactory(){
+double* HestonModel::PathFactory(){
 	double* db1;
 	double* db2 = new double[dim_-1];
 	double* volativity_path = volativityPathFactory(db1);
@@ -56,8 +56,19 @@ double* HestonModel::stockPathFactory(){
 }
 
 double HestonModel::get_ST(){
-	double* stock_path = stockPathFactory();
+	double* stock_path = PathFactory();
 	double ret = stock_path[dim_-1];
 	delete[] stock_path;
+	return ret;
+}
+
+double HestonModel::get_path_mean(){
+	double* stock_path = PathFactory();
+	double tmp_sum = 0;
+	for (int i = 0; i < dim_; ++i) {
+		tmp_sum += stock_path[i];
+	}
+	delete[] stock_path;
+	double ret = tmp_sum / dim_;
 	return ret;
 }
