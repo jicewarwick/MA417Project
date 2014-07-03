@@ -19,7 +19,6 @@
 
 int main(int argc, char *argv[]) {
 	//Simulate Heston Model
-	
 	//parameter initilisation:
 	int N_int = 100;
 	int N_sim = 10000;
@@ -33,6 +32,7 @@ int main(int argc, char *argv[]) {
 	double T = 1;
 
 	NormalRandomNumberGenerator* norm = new NormalRandomNumberGenerator();
+/*	
 	HestonModel* Q1 = new HestonModel(alpha, beta, gamma, rho, v0, r, S0, T, N_int, norm);
 
 	std::vector<double> call_K;
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "Down-and-Out Call option price: " << barrier_call_price << std::endl;
 
 	Q1->~HestonModel();
-
+*/
 	// calibration
 	const int kNumK = 7;
 	const int kNumVar = 5;
@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
 	double x_init[kNumVar] = {0.1, 0.1, 0.1, 0.1, 0.1};
 	gsl_vector_view x = gsl_vector_view_array(x_init, kNumVar);
 	struct data d = {kNumVar, K, market_price, norm};
+
 	gsl_multifit_function_fdf f;
 	f.f = &func;
 	f.df = NULL;
@@ -73,8 +74,30 @@ int main(int argc, char *argv[]) {
 	f.params = &d;
 
 	const gsl_multifit_fdfsolver_type *solver_type = gsl_multifit_fdfsolver_lmder;
-	gsl_multifit_fdfsolver* fd =  gsl_multifit_fdfsolver_alloc(solver_type, kNumK, kNumVar);
-	gsl_multifit_fdfsolver_set(fd, &f, &x.vector);
+	gsl_multifit_fdfsolver* s =  gsl_multifit_fdfsolver_alloc(solver_type, kNumK, kNumVar);
+	gsl_multifit_fdfsolver_set(s, &f, &x.vector);
+
+	int status;
+	int iter = 0;
+	do {
+		++iter;
+		status = gsl_multifit_fdfsolver_iterate(s);
+
+		std::cout << "status = " << gsl_strerror(status) << std::endl;
+
+		if (status) {
+			break;
+		}
+		status = gsl_multifit_test_delta(s->dx, s->x, 1e-4, 1e-4);
+
+	} while(status == GSL_CONTINUE && iter < 500);
+
+	std::cout << "iter: " << iter << std::endl;
+	std::cout << "alpha	= " << gsl_vector_get(s->x, 0) << std::endl;
+	std::cout << "beta	= " << gsl_vector_get(s->x, 1) << std::endl;
+	std::cout << "gamma	= " << gsl_vector_get(s->x, 2) << std::endl;
+	std::cout << "rho	= " << gsl_vector_get(s->x, 3) << std::endl;
+	std::cout << "v_0	= " << gsl_vector_get(s->x, 4) << std::endl;
 
 	norm->~NormalRandomNumberGenerator();
 	return 0;

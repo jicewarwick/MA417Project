@@ -12,7 +12,6 @@ struct data {
 	NormalRandomNumberGenerator* norm;
 };
 
-
 	//input:
 	//	data includes the actural val and number of observations
 	//	f is the output vector that gives the difference between the
@@ -45,6 +44,7 @@ int func(const gsl_vector* x, void* data, gsl_vector* f){
 		MonteCarloSimulation sim_call_price(Q1, strike, EuropeanCallVal, N_sim);
 		sim_call_price.exec();
 		double call_price = sim_call_price.get_results();
+		std::cout << "Diff " << call_price -y[i] << std::endl;
 	
 		Q1->~HestonModel();
 		gsl_vector_set(f, i, call_price - y[i]);
