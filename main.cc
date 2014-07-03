@@ -8,12 +8,14 @@
 #include <iostream>
 #include <functional>
 #include <algorithm>
+#include <gsl/gsl_multifit_nlin.h>
 #include "NormalRandomNumberGenerator.h"
-#include "Model.h"
 #include "HestonModel.h"
 #include "dataExport.h"
 #include "Options.h"
 #include "MonteCarloSimulation.h"
+
+#include "f.cc"
 
 int main(int argc, char *argv[]) {
 	//Simulate Heston Model
@@ -47,7 +49,33 @@ int main(int argc, char *argv[]) {
 	double barrier_call_price = sim_barrier_call_price.get_results();
 	std::cout << "Down-and-Out Call option price: " << barrier_call_price << std::endl;
 
-	norm->~NormalRandomNumberGenerator();
 	Q1->~HestonModel();
+
+	// calibration
+	const int kNumK = 7;
+	const int kNumVar = 5;
+	T = 1;
+	S0 = 14.97;
+	r = 0.0;
+	double K[kNumK] = 				{10.0,	12.5,	15.0,	17.5,	20.0,	22.5,	25.0};
+	double market_price[kNumK] = 	{5.43,	3.35,	1.85,	0.9,	0.4,	0.18,	0.09};
+
+	//x_init is the initial guess.
+	double x_init[kNumVar] = {0.1, 0.1, 0.1, 0.1, 0.1};
+	gsl_vector_view x = gsl_vector_view_array(x_init, kNumVar);
+	struct data d = {kNumVar, K, market_price, norm};
+	gsl_multifit_function_fdf f;
+	f.f = &func;
+	f.df = NULL;
+	f.fdf = NULL;
+	f.n = kNumK;
+	f.p = kNumVar;
+	f.params = &d;
+
+	const gsl_multifit_fdfsolver_type *solver_type = gsl_multifit_fdfsolver_lmder;
+	gsl_multifit_fdfsolver* fd =  gsl_multifit_fdfsolver_alloc(solver_type, kNumK, kNumVar);
+	gsl_multifit_fdfsolver_set(fd, &f, &x.vector);
+
+	norm->~NormalRandomNumberGenerator();
 	return 0;
 }

@@ -21,12 +21,12 @@ double* HestonModel::volativityPathFactory(double*& db1){
 	db1 = new double[dim_-1];
 	double *volativity_path = new double[dim_];
 	volativity_path[0] = v0_;
+	double tmp_sqrt_N_int_ = sqrt(N_int_);
 
 	for (int i = 0; i < dim_-1; ++i) {
 		db1[i] = norm_gen_->getNormalRandomVariable();
-		volativity_path[i+1] = volativity_path[i] + alpha_ * (beta_ - volativity_path[i]) / N_int_ + gamma_ * sqrt(volativity_path[i]) * db1[i] / sqrt(N_int_);
+		volativity_path[i+1] = volativity_path[i] + alpha_ * (beta_ - volativity_path[i]) / N_int_ + gamma_ * sqrt(volativity_path[i]) * db1[i] / tmp_sqrt_N_int_;
 	}
-
 	return volativity_path;
 }
 
@@ -37,10 +37,11 @@ double* HestonModel::PathFactory(){
 	double* stock_path = new double[dim_];
 	stock_path[0] = log(S0_);
 	double anti_corr = sqrt(1-pow(rho_, 2));
+	double tmp_sqrt_N_int_ = sqrt(N_int_);
 
 	for (int i = 0; i < dim_-1; ++i) {
 		db2[i] = norm_gen_->getNormalRandomVariable();
-		stock_path[i+1] = stock_path[i] + std::max(r_-0.5*volativity_path[i], 0.0) / N_int_ + sqrt(volativity_path[i])*(rho_*db1[i] + anti_corr * db2[i])/sqrt(N_int_);
+		stock_path[i+1] = stock_path[i] + std::max(r_-0.5*volativity_path[i], 0.0) / N_int_ + sqrt(volativity_path[i])*(rho_*db1[i] + anti_corr * db2[i])/tmp_sqrt_N_int_;
 	}
 
 	for (int i = 0; i < dim_; ++i) {
