@@ -11,7 +11,7 @@ public:
 	virtual ~MonteCarloSimulation ();
 	void exec();
 	double get_results(){return results_;}
-	void sim(int i);
+	void sim(int start, int end);
 
 private:
 	Model* m_;

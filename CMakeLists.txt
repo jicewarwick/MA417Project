@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 project(HestonModelSimulations)
 add_executable(HestonModelSimulations main)
 
-SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
+#SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
 SET (CMAKE_CXX_FLAGS "-g -std=c++11 -Wall -O2 -mtune=native")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR})
